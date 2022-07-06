@@ -10,8 +10,8 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="home" component={Intro} />
-        <Stack.Screen name="listCoins" component={ListCoins} />
+        <Stack.Screen name="Home" component={Intro} />
+        <Stack.Screen name="ListCoins" component={ListCoins} />
       </Stack.Navigator>
     </NavigationContainer>
   );

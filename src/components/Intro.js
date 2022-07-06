@@ -5,10 +5,10 @@ import Button from '../tools/Button';
 const Intro = ({navigation}) => {
   return (
     <View>
-      <Text>Lo que sea que vaya aqui</Text>
+      <Text>Esta es la mejor app para revisar tus monedas</Text>
       <Button
         text="Ver monedas"
-        onPress={() => navigation.navigate('listCoins')}
+        onPress={() => navigation.navigate('ListCoins')}
       />
     </View>
   );
