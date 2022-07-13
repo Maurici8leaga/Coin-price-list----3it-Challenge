@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList} from 'react-native';
+import {View, FlatList} from 'react-native';
 import CoinItem from './CoinItem';
 
 const ListCoins = ({navigation}) => {
@@ -24,13 +24,12 @@ const ListCoins = ({navigation}) => {
 
   const renderItem = ({item}) => {
     // este prop debe llamarse "item" por defecto, porque si no da error
-    return <CoinItem moneda={item} />;
+    return <CoinItem coinData={item} navigation={navigation} />;
+    // hay que pasar navigation como prop para que se pueda navegar a otro component en el siguiente component
   };
 
   return (
     <View>
-      <Text>ListCoins</Text>
-
       <FlatList
         data={coins}
         renderItem={renderItem}
