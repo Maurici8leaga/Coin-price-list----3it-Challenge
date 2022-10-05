@@ -5,13 +5,11 @@ import {AppBar} from '@react-native-material/core';
 import {Divider} from '@react-native-material/core';
 import {
   VictoryChart,
-  VictoryTheme,
   VictoryLine,
   VictoryLabel,
+  VictoryAxis,
 } from 'victory-native';
 import moment from 'moment';
-
-const {width, height} = Dimensions.get('screen');
 
 const CoinDetails = ({route}) => {
   // se coloca "route" para acceder a los props que esta recibiendo este component desde su parent component
@@ -32,9 +30,25 @@ const CoinDetails = ({route}) => {
     // act the state of the coin
     setDataCoin(data);
 
-    // making a new array for only the last 10  dates and  prices
-    const arrayPriceAndDates = data.serie.slice(0, 10).map(e => {
-      // con slice escogemos solos los ultimos 10
+    // making a new array for only the last 10  dates and  prices & sorting the dates in chronological order
+    const sortArrayPriceAndDates = data.serie
+      .slice(0, 10)
+      // con slice escogemos solos los ultimos 10 fechas
+      .map(obj => {
+        // aca debemos cambiar el formato de las fechas a formato Epoch para luego poder ordenar las fechas
+        // gracias a "getTime" es una funcion de javascript que puede devuelve la fecha segun el formato Epoch
+        return {...obj, fecha: new Date(obj.fecha).getTime(), valor: obj.valor};
+      })
+      .sort((objA, objB) => objA.fecha - objB.fecha)
+      // de esta forma ordenamos las fechas de forma cronologica
+      .map(d => {
+        // por ultimo necesitamos volver a cambiar el formato de las fechas a formato ISO para poder
+        // mandarlas a la grafica, con "toISOString" esto es posible
+        return {...d, fecha: new Date(d.fecha).toISOString(), valor: d.valor};
+      });
+
+    // changing the format dates
+    const arrayPriceAndDates = sortArrayPriceAndDates.map(e => {
       const dateFormated = {
         // de esta forma formateamos todas las fechas al formato que queremos
         fecha: moment(e.fecha).format('YYYY-MM-DD'),
@@ -59,10 +73,8 @@ const CoinDetails = ({route}) => {
     loadData();
   }, []);
 
-  const chartHeight = Dimensions.get('window').height * 0.3;
+  const chartHeight = Dimensions.get('window').height * 0.5;
   const chartWidth = Dimensions.get('window').width;
-
-  console.log(last10Price, '<- last10Price');
 
   return !actualPrice && !dataCoin ? (
     <Text>Loading...</Text>
@@ -99,16 +111,46 @@ const CoinDetails = ({route}) => {
         />
 
         <VictoryChart
+          domainPadding={{x: 12}}
+          // domainPadding es un prop que especifica un numero de pixeles de separacion en el axis, ya sea x o y
+          style={{background: {fill: '#008ae6'}}}
+          // se usa el prop "fill" para colocar el color
           height={chartHeight}
-          width={chartWidth}
-          style={{background: {fill: '#008ae6'}}}>
+          width={chartWidth}>
           <VictoryLine
-            animate
             data={last10Price}
             x="fecha"
             y="valor"
-            width={width}
-            height={height}
+            style={{
+              data: {opacity: 0.8, stroke: '#FFFF00'},
+              // stroke es la linea de la grafica
+              labels: {fontSize: 11, fill: () => '#000000'},
+            }}
+            labels={({datum}) => `${datum.valor}`}
+            // para colocar label en la grafica se usa "datum" ya que es el prop designado por Victory
+            labelComponent={
+              <VictoryLabel
+                angle={90}
+                // usamos "angle" para colocar la inclinacion de las fechas en este caso y hacerlas vertical
+                textAnchor="start"
+                // "textAnchor" dependiendo de la especificacion el va a colocar los label por encima de los puntos de la grafica o por debajo de ellos
+                verticalAnchor="start"
+                // "verticalAnchor" sucede lo mismo que textAnchor solo que en vertical
+              />
+            }
+          />
+          <VictoryAxis
+            style={{
+              tickLabels: {angle: 90, padding: 25, fontSize: 11},
+              // en "tickLabels" podemos indicar el style que queremos que lleve la data en el axis
+            }}
+          />
+          <VictoryAxis
+            dependentAxis
+            // el prop "dependentAxis" es para especificar que el axis va a ser el Y de la grafica
+            style={{
+              tickLabels: {fontSize: 11},
+            }}
           />
         </VictoryChart>
       </View>
